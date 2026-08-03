@@ -1,0 +1,60 @@
+defaults:
+  - task: cube
+  - _self_
+
+data:
+  root: ${oc.env:LEWM_DATA_ROOT,/data/lewm}
+
+pipeline:
+  output_root: ${task.data_root}/diffusion_pipeline
+  device: cuda
+  seed: 42
+  train_ratio: 0.8
+  num_samples: 200000
+  build_batch_size: 128
+  force_split: false
+  force_dataset: false
+  force_anchors: false
+  force_train: false
+  force_calibration: false
+  dry_run: false
+
+anchors:
+  selection: kmeans-nearest
+  num_anchors: 128
+  max_samples: 200000
+  max_iter: 300
+
+train:
+  epochs: 80
+  batch_size: 64
+  val_batch_size: 128
+  num_workers: 4
+  loss_preset: simple_bce
+  diffusion_mode: truncated
+  initialization_mode: anchors
+  num_train_steps: 16
+  truncation_steps: 4
+  start_timestep: null
+  bridge_beta_d: 2.0
+  bridge_beta_min: 0.1
+  lr: 0.001
+  weight_decay: 0.0001
+  val_split: 0.1
+  log_every: 50
+  score_head_type: mlp
+
+train_stage2:
+  # Score-head calibration against the frozen LeWM (paper "Training", stage 2).
+  # Loads the stage-1 bundle via --init-bundle-path, freezes the denoiser
+  # (--freeze-non-score-head), and supervises the score head with the
+  # world-model argmin CE + top-16 margin objective (loss_preset).
+  enabled: true
+  epochs: 20
+  batch_size: 64
+  val_batch_size: 128
+  num_workers: 4
+  loss_preset: wm_score_topk_margin
+  lr: 0.001
+  weight_decay: 0.0001
+  log_every: 50

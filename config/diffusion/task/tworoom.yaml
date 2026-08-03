@@ -1,0 +1,26 @@
+name: tworoom
+eval_config: tworoom
+data_root: ${data.root}/tworoom
+dataset_name: tworoom
+raw_h5: ${task.data_root}/tworoom.h5
+split_train_root: ${task.data_root}/splits/tworoom_train
+split_test_root: ${task.data_root}/splits/tworoom_test
+split_train_h5: ${task.split_train_root}/tworoom.h5
+split_test_h5: ${task.split_test_root}/tworoom.h5
+planner_dataset_path: ${pipeline.output_root}/tworoom_planner_dataset.pt
+anchor_bundle_path: ${pipeline.output_root}/tworoom_action_anchors_k${anchors.num_anchors}_kmeans_nearest.pt
+train_output_dir: ${pipeline.output_root}/tworoom_diffusion_k${anchors.num_anchors}_${pipeline.num_samples}
+wm_policy: ${task.data_root}/lewm_epoch_67
+episode_key: auto
+download_if_missing: false
+download:
+  url: https://hf-mirror.com/datasets/quentinll/lewm-tworooms/resolve/main/tworoom.tar.zst
+  archive_type: tar.zst
+  output: ${task.data_root}/tworoom.tar.zst
+
+evaluation:
+  enabled: true
+  dataset_h5: ${task.split_test_h5}
+  cache_dir: ${task.split_test_root}
+  num_eval: 50
+  save_video: false

@@ -1,0 +1,26 @@
+name: pusht
+eval_config: pusht
+data_root: ${data.root}/pusht
+dataset_name: pusht_expert_train
+raw_h5: ${task.data_root}/pusht_expert_train.h5
+split_train_root: ${task.data_root}/splits/pusht_expert_train_train
+split_test_root: ${task.data_root}/splits/pusht_expert_train_test
+split_train_h5: ${task.split_train_root}/pusht_expert_train.h5
+split_test_h5: ${task.split_test_root}/pusht_expert_train.h5
+planner_dataset_path: ${pipeline.output_root}/pusht_planner_dataset.pt
+anchor_bundle_path: ${pipeline.output_root}/pusht_action_anchors_k${anchors.num_anchors}_kmeans_nearest.pt
+train_output_dir: ${pipeline.output_root}/pusht_diffusion_k${anchors.num_anchors}_${pipeline.num_samples}
+wm_policy: ${task.data_root}/lewm_epoch_100
+episode_key: auto
+download_if_missing: false
+download:
+  url: https://hf-mirror.com/datasets/quentinll/lewm-pusht/resolve/main/pusht_expert_train.h5.zst
+  archive_type: h5.zst
+  output: ${task.data_root}/pusht_expert_train.h5.zst
+
+evaluation:
+  enabled: true
+  dataset_h5: ${task.split_test_h5}
+  cache_dir: ${task.split_test_root}
+  num_eval: 50
+  save_video: false
